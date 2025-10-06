@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin 後台</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <h1>📢 Admin 後台</h1>
+  <h2>使用者列表</h2>
+  <table border="1" id="userTable">
+    <tr><th>IP</th><th>狀態</th><th>單發</th></tr>
+  </table>
+  <h2>群發通知</h2>
+  <input type="text" id="title" placeholder="標題"><br><br>
+  <textarea id="message" placeholder="內容"></textarea><br><br>
+  <button id="sendAll">群發通知</button>
+</div>
+
+<script>
+async function loadUsers(){
+  const res = await fetch('/users');
+  const data = await res.json();
+  const table = document.getElementById('userTable');
+  table.innerHTML = '<tr><th>IP</th><th>狀態</th><th>單發</th></tr>';
+  data.forEach(u=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML=`<td>${u.ip}</td><td>${u.status}</td>
+    <td><button onclick="sendSingle('${u.ip}')">單發</button></td>`;
+    table.appendChild(tr);
+  });
+}
+
+async function sendSingle(ip){
+  const title = prompt('通知標題','單發通知');
+  const msg = prompt('內容','測試訊息');
+  await fetch('/sendNotification',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ip,title,message:msg})
+  });
+  alert('單發完成');
+  loadUsers();
+}
+
+document.getElementById('sendAll').addEventListener('click', async ()=>{
+  const title = document.getElementById('title').value || '通知';
+  const msg = document.getElementById('message').value || '內容';
+  await fetch('/sendNotification',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({title,message:msg})
+  });
+  alert('群發完成');
+  loadUsers();
+});
+
+loadUsers();
+</script>
+</body>
+</html>
