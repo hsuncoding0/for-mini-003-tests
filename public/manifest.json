@@ -1,0 +1,19 @@
+{
+  "name": "周豬豬測試",
+  "short_name": "周豬豬",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "description": "周豬豬的 PWA 測試應用，支援推播通知與離線使用",
+  "categories": ["utilities", "productivity"],
+  "lang": "zh-TW"
+}
