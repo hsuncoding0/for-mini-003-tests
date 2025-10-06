@@ -29,11 +29,18 @@ webpush.setVapidDetails(
   vapidKeys.privateKey
 );
 
-// ===== 其餘程式保持不變 =====
 let users = []; // { ip, subscription, status }
 
+// ===== 提供公鑰給前端訂閱 =====
 app.get('/vapidPublicKey', (req, res) => res.json({ key: vapidKeys.publicKey }));
 
+// ===== Admin 取得 VAPID 金鑰 =====
+app.get('/vapidKeys', (req, res) => {
+  // ⚠️ 注意：私鑰只應 Admin 可見
+  res.json(vapidKeys);
+});
+
+// ===== 訂閱 =====
 app.post('/subscribe', (req, res) => {
   const subscription = req.body;
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -48,11 +55,13 @@ app.post('/subscribe', (req, res) => {
   console.log(`✅ 新訂閱 IP: ${ip}`);
 });
 
+// ===== Admin 取得所有使用者 =====
 app.get('/users', (req, res) => {
   const data = users.map(u => ({ ip: u.ip, status: u.status }));
   res.json(data);
 });
 
+// ===== 發送通知（單個或群發） =====
 app.post('/sendNotification', async (req, res) => {
   const { ip, title, message, image } = req.body;
   const payload = JSON.stringify({ title, body: message, image });
