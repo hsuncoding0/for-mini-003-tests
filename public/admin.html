@@ -9,14 +9,24 @@
 <body>
 <div class="container">
   <h1>📢 Admin 後台</h1>
+
+  <!-- 使用者列表 -->
   <h2>使用者列表</h2>
   <table border="1" id="userTable">
     <tr><th>IP</th><th>狀態</th><th>單發</th></tr>
   </table>
+
+  <!-- 群發通知 -->
   <h2>群發通知</h2>
   <input type="text" id="title" placeholder="標題"><br><br>
   <textarea id="message" placeholder="內容"></textarea><br><br>
+  <input type="text" id="image" placeholder="圖片 URL (選填)"><br><br>
   <button id="sendAll">群發通知</button>
+
+  <!-- VAPID 金鑰 -->
+  <h2>VAPID 金鑰</h2>
+  <p>Public Key: <span id="vapidPublic"></span></p>
+  <p>Private Key: <span id="vapidPrivate"></span></p>
 </div>
 
 <script>
@@ -36,10 +46,11 @@ async function loadUsers(){
 async function sendSingle(ip){
   const title = prompt('通知標題','單發通知');
   const msg = prompt('內容','測試訊息');
+  const img = prompt('圖片 URL (選填)','');
   await fetch('/sendNotification',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ip,title,message:msg})
+    body:JSON.stringify({ip,title,message:msg,image:img})
   });
   alert('單發完成');
   loadUsers();
@@ -48,16 +59,25 @@ async function sendSingle(ip){
 document.getElementById('sendAll').addEventListener('click', async ()=>{
   const title = document.getElementById('title').value || '通知';
   const msg = document.getElementById('message').value || '內容';
+  const img = document.getElementById('image').value || '';
   await fetch('/sendNotification',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({title,message:msg})
+    body:JSON.stringify({title,message:msg,image:img})
   });
   alert('群發完成');
   loadUsers();
 });
 
+async function loadVapidKeys() {
+  const res = await fetch('/vapidKeys');
+  const data = await res.json();
+  document.getElementById('vapidPublic').textContent = data.publicKey;
+  document.getElementById('vapidPrivate').textContent = data.privateKey;
+}
+
 loadUsers();
+loadVapidKeys();
 </script>
 </body>
 </html>
